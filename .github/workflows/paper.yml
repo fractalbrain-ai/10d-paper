@@ -1,0 +1,64 @@
+name: Build and host PDF on GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: paper-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Compile and validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v7
+
+      - name: Install LaTeX dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk \
+            texlive-fonts-recommended \
+            texlive-latex-extra \
+            texlive-publishers
+
+      - name: Compile and validate the paper
+        run: make check
+
+      - name: Prepare PDF for GitHub Pages
+        run: |
+          mkdir -p "$RUNNER_TEMP/paper-pages"
+          cp build/crl_desiderata.pdf "$RUNNER_TEMP/paper-pages/"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ runner.temp }}/paper-pages
+
+  deploy:
+    name: Deploy PDF to GitHub Pages
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.base_url }}/crl_desiderata.pdf
+    steps:
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Deploy PDF
+        uses: actions/deploy-pages@v5

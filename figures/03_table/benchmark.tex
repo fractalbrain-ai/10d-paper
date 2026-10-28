@@ -1,0 +1,85 @@
+\definecolor{probed}{HTML}{1C5670}
+\definecolor{notprobed}{HTML}{A0A6AC}
+\definecolor{ours}{HTML}{FFF0CD}
+\definecolor{block}{HTML}{D6DEE6}
+
+\DeclareRobustCommand{\CoverageMark}[2]{%
+    \ensuremath{\vcenter{\hbox{%
+        \tikz[x=0.55ex, y=0.55ex, line width=0.08ex]{
+            \fill[#1] (0,0) -- (0,1) arc[start angle=90, end angle={90+360*#2}, radius=1] -- cycle;
+            \draw[#1] (0,0) circle[radius=1];
+        }%
+    }}}%
+}
+\DeclareRobustCommand{\Full}{\CoverageMark{probed}{1}}
+\DeclareRobustCommand{\Half}{\CoverageMark{probed}{0.5}}
+\DeclareRobustCommand{\None}{\CoverageMark{notprobed}{0}}
+
+\definecolor{notesbg}{HTML}{F3F5F7}
+\begin{table*}[t]
+    \centering
+    \caption{Coverage of the desiderata by representative benchmarks and by our proposed benchmark.
+        Ratings refer to the protocols and readouts described in the cited studies and in our proposal.
+        The last row gives the intended coverage of the benchmark proposed for our playable companion.
+        For \Dref{1}, the columns describe whether the task-free, non-episodic, and online conditions are instantiated: \Full~fully; \Half~partially; \None~not instantiated.
+        For the behavioral columns, \Full~indicates that a dedicated protocol or readout directly probes the property; \Half~indicates incomplete component coverage or indirect or confounded evidence; \None~indicates that the property is not probed.
+        The system-level desiderata \Dref{3}--\Dref{5} are omitted.}
+    \label{tab:benchmark-coverage}
+    \small
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X ccc cccccc}
+        \toprule
+        & \multicolumn{3}{c}{Protocol (\Dref{1})} & \multicolumn{6}{c}{Behavioral} \\
+        \cmidrule(lr){2-4} \cmidrule(l){5-10}
+        Benchmark & \shortstack{Task-\\free} & \shortstack{Non-\\episodic} & \shortstack{On-\\line} & \Dref{2} & \Dref{6} & \Dref{7} & \Dref{8} & \Dref{9} & \Dref{10} \\
+        \midrule
+        \addlinespace
+        \rowcolor{block}\multicolumn{10}{l}{\textbf{Predefined task sequences} (Sec.~\ref{sec:landscape-sequences})} \\
+        CLEAR (imagery)~\cite{lin2021} & \None & \None & \Full & \Full & \None & \None & \None & \None & \None \\
+        Continual World~\cite{wolczyk2021} & \None & \None & \Full & \Full & \None & \Half & \None & \None & \None \\
+        CORA~\cite{powers2022} & \Full & \None & \Full & \Full & \None & \Half & \None & \None & \None \\
+        COOM~\cite{tomilin2023} & \None & \None & \Full & \Full & \None & \Half & \None & \None & \None \\
+        Continual multi-objective suite~\cite{li2024a} & \None & \None & \Full & \Full & \None & \Half & \None & \Half & \None \\
+        \addlinespace
+        \rowcolor{block}\multicolumn{10}{l}{\textbf{Reset-free and continuing testbeds} (Sec.~\ref{sec:landscape-continuing})} \\
+        EARL~\cite{sharma2022} & \Full & \Half & \Full & \None & \None & \None & \None & \None & \None \\
+        Lifelong Hopper/Ant (online runs)~\cite{lu2021} & \Full & \Full & \Full & \Half & \None & \Half & \Half & \None & \Half \\
+        JBW (PT-DQN experiment)~\cite{anand2023} & \Full & \Full & \Full & \Half & \None & \None & \None & \None & \None \\
+        Forager~\cite{tang2026} & \Full & \Full & \Full & \Half & \Half & \None & \None & \None & \None \\
+        AgarCL~\cite{mohamed2025} & \Full & \Full & \Full & \Half & \Half & \None & \None & \None & \None \\
+        \addlinespace
+        \rowcolor{block}\multicolumn{10}{l}{\textbf{Focused diagnostics} (Sec.~\ref{sec:landscape-complementary})} \\
+        URLB~\cite{laskin2021} & \None & \None & \Full & \None & \None & \Full & \None & \None & \None \\
+        CausalWorld (zero-shot tests)~\cite{ahmed2021} & \Full & \None & \None & \None & \None & \Half & \None & \None & \None \\
+        CompoSuite (zero-shot tests)~\cite{mendez2022a} & \None & \None & \None & \None & \None & \Half & \None & \None & \Half \\
+        LoCA~\cite{wan2022} & \Full & \None & \Full & \Half & \None & \None & \Half & \None & \None \\
+        T-Maze diagnostics~\cite{ni2023} & \Full & \None & \Full & \None & \Full & \None & \None & \None & \None \\
+        \addlinespace
+        \rowcolor{block}\multicolumn{10}{l}{\textbf{Related research areas} (Sec.~\ref{sec:landscape-complementary})} \\
+        ARC-AGI-3~\cite{arcprize2026} & \Half & \None & \Full & \None & \None & \None & \Half & \None & \Half \\
+        Melting Pot (social generalization tests)~\cite{leibo2021} & \Full & \None & \Full & \None & \None & \None & \None & \Half & \Half \\
+        MineRL~\cite{guss2019} & \Full & \None & \Full & \None & \None & \None & \None & \None & \None \\
+        MineDojo~\cite{fan2022} & \Full & \None & \Full & \None & \None & \Half & \None & \None & \None \\
+        \midrule
+        \rowcolor{ours}
+        \textbf{Our companion (Sec.~\ref{sec:benchmark-proposal})} & \Full & \Full & \Full & \Full & \Half & \Half & \Half & \Half & \Half \\
+        \bottomrule
+    \end{tabularx}
+    \par\bigskip
+    \setlength{\fboxsep}{5pt}
+    \noindent\colorbox{notesbg}{%
+        \begin{minipage}{\dimexpr\linewidth-2\fboxsep\relax}
+            \footnotesize
+            The following notes clarify \Dref{1} ratings that require additional context about the evaluated protocols:
+            \par\smallskip
+            \begin{tabular}{@{}ll@{}}
+                \emph{CLEAR (imagery)} & The online rating concerns streaming prediction with updates from each new temporal bucket. \\
+                \emph{CORA} & The task-free rating concerns the CLEAR runs; other baselines use supplied task boundaries. \\
+                \emph{EARL} & Runs are task-free with supplied goals; sparse external resets limit the non-episodic rating. \\
+                \emph{LoCA} & The task-free rating concerns standard runs; buffer-clearing variants use supplied change signals. \\
+                \emph{ARC-AGI-3} & Level transitions are externally marked, limiting task-free coverage to interaction within levels. \\
+                \emph{Melting Pot} & The online rating includes recurrent-state updates with fixed parameters and game rules. \\
+                \emph{MineDojo} & Single-stage combat runs are task-free; other groups use staged training with policy-head resets. \\
+            \end{tabular}
+        \end{minipage}%
+    }
+\end{table*}

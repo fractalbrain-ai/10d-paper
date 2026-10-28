@@ -1,0 +1,141 @@
+\begingroup
+    \newcommand{\overviewtitle}[1]{\vspace*{0.5em}{\sffamily\bfseries #1}\par\vspace{0.07cm}}
+    \newcommand{\overviewstatement}[1]{#1\par}
+    \newcommand{\overviewcardheight}{2.75cm}
+    \newcommand{\overviewcardbody}[2]{
+        \begin{minipage}[t][#1][t]{0.273\textwidth}
+            \vspace*{0cm}
+            \raggedright
+            #2
+        \end{minipage}
+    }
+    \newcommand{\systemcardbody}[1]{\overviewcardbody{\overviewcardheight}{#1}}
+    \newcommand{\behavioralcardbody}[1]{\overviewcardbody{\overviewcardheight}{#1}}
+
+    \begin{tikzpicture}[
+        x=\textwidth,
+        y=1cm,
+        overview group/.style={rounded corners=0.25cm, line width=0.8pt},
+        overview card/.style={
+            rounded corners=0.18cm,
+            line width=0.55pt,
+            align=left,
+            anchor=north west,
+            inner xsep=0.25cm,
+            inner ysep=0.21cm,
+            font=\footnotesize
+        },
+        protocol card/.style={overview card, draw=protocolbriefframe, fill=protocolbriefback},
+        system card/.style={overview card, draw=systembriefframe, fill=systembriefback},
+        boundary card/.style={
+            overview card,
+            draw=behaviorbriefframe,
+            fill=systembriefback,
+            line width=0.8pt,
+            dash pattern=on 3pt off 2pt
+        },
+        behavioral card/.style={overview card, draw=behaviorbriefframe, fill=behaviorbriefback},
+        card tag/.style={
+            anchor=west,
+            rounded corners=0cm,
+            inner xsep=0.10cm,
+            inner ysep=0.04cm,
+            outer sep=0cm,
+            xshift=0.28cm,
+            font=\scriptsize\bfseries\sffamily,
+            text=black
+        },
+        protocol tag/.style={card tag, fill=protocolbriefframe},
+        system tag/.style={card tag, fill=systembriefframe},
+        behavioral tag/.style={card tag, fill=behaviorbriefframe},
+        group title/.style={anchor=north west, font=\large\bfseries\sffamily},
+        group description/.style={anchor=north west, font=\small\sffamily, text=black!65}
+    ]
+        \draw[overview group, draw=protocolbriefframe] (0.001,0) rectangle (0.999,-2.66);
+        \node[group title, text=protocolbriefframe] at (0.018,-0.12) {Protocol-level};
+        \node[group description] at (0.195,-0.15) {Conditions under which evidence is obtained};
+        \node[protocol card, align=center, text width=0.935\textwidth] (d1) at (0.018,-0.82) {
+            \overviewtitle{Task-Free Non-Episodic Online Learning}
+            \overviewstatement{Receive no externally supplied task identities or boundaries, operate in one uninterrupted lifetime without resets that erase earlier consequences, and update online throughout that interaction.}
+        };
+        \node[protocol tag] at (d1.north west) {D1};
+
+        \draw[overview group, draw=systembriefframe] (0.001,-2.91) rectangle (0.999,-7.31);
+        \node[group title, text=systembriefframe!80!black] at (0.018,-3.05) {System-level};
+        \node[group description] at (0.18,-3.08) {Resource use, organization, and interfaces};
+
+        \node[system card] (d3) at (0.018,-3.84) {
+            \systemcardbody{
+                \overviewtitle{Bounded Adaptive Capacity}
+                \overviewstatement{Manage storage, model capacity, and computation within explicit finite limits, reusing shared structure where possible.
+                Allocate, expand, or reassign capacity as needed and choose what to preserve or release.}
+            }
+        };
+        \node[system tag] at (d3.north west) {D3};
+        \node[system card] (d4) at (0.344,-3.84) {
+            \systemcardbody{
+                \overviewtitle{Adaptive Hierarchical Computation}
+                \overviewstatement{Organize reusable computation across levels of abstraction and adapt its use to the current problem.
+                Use little computation for simple problems, draw on higher levels for complex ones, and revise or extend the hierarchy over time.}
+            }
+        };
+        \node[system tag] at (d4.north west) {D4};
+        \node[boundary card] (d5) at (0.670,-3.84) {
+            \systemcardbody{
+                \overviewtitle{Active Sensing}
+                \overviewstatement{Integrate control over sensing into the learning system through its action and observation interface, adapting what information is acquired and how deeply it is processed as goals, uncertainty, and experience change.}
+            }
+        };
+        \node[system tag] at (d5.north west) {D5};
+
+        \draw[overview group, draw=behaviorbriefframe] (0.001,-7.56) rectangle (0.999,-15.47);
+        \node[group title, text=behaviorbriefframe!80!black] at (0.018,-7.70) {Behavioral};
+        \node[group description] at (0.16,-7.73) {Capabilities demonstrated through interaction over time};
+
+        \node[behavioral card] (d2) at (0.018,-8.51) {
+            \behavioralcardbody{
+                \overviewtitle{Sustainable Stability and Plasticity}
+                \overviewstatement{Maintain both stability and plasticity throughout the agent's lifetime by retaining useful abilities while remaining able to learn, revise, and relearn.}
+            }
+        };
+        \node[behavioral tag] at (d2.north west) {D2};
+        \node[behavioral card] (d6) at (0.344,-8.51) {
+            \behavioralcardbody{
+                \overviewtitle{Persistent Memory and Long-Range Credit}
+                \overviewstatement{Retain information throughout the agent's lifetime and retrieve it when relevant, while assigning credit to past actions whose consequences occur only after long delays and without immediate reward.}
+            }
+        };
+        \node[behavioral tag] at (d6.north west) {D6};
+        \node[behavioral card] (d7) at (0.670,-8.51) {
+            \behavioralcardbody{
+                \overviewtitle{Reward-Independent Learning and Transfer}
+                \overviewstatement{Acquire reusable knowledge and skills without relying on the task reward that later makes them useful, and transfer them efficiently when they become reward-relevant in the same continuing interaction.}
+            }
+        };
+        \node[behavioral tag] at (d7.north west) {D7};
+
+        \node[behavioral card] (d8) at (0.018,-11.99) {
+            \behavioralcardbody{
+                \overviewtitle{Predictive World Modeling and Reasoning}
+                \overviewstatement{Learn and continually revise a world model that predicts consequences under possible actions and represents uncertainty in those predictions.
+                Retain and use the model to reason beyond directly observed outcomes.}
+            }
+        };
+        \node[behavioral tag] at (d8.north west) {D8};
+        \node[behavioral card] (d9) at (0.344,-11.99) {
+            \behavioralcardbody{
+                \overviewtitle{Outcome Trade-Offs}
+                \overviewstatement{Value and compare predicted outcomes by determining how delays, competing objectives, and risks should affect the agent's choices.
+                Revise how these trade-offs are resolved as conditions and priorities change.}
+            }
+        };
+        \node[behavioral tag] at (d9.north west) {D9};
+        \node[behavioral card] (d10) at (0.670,-11.99) {
+            \behavioralcardbody{
+                \overviewtitle{Concurrent Hierarchical Planning}
+                \overviewstatement{Build hierarchical plans from reusable subplans operating at different levels of abstraction and temporal scales, and coordinate overlapping subplans in parallel, through an interleaved action stream, or across cooperating agents.}
+            }
+        };
+        \node[behavioral tag] at (d10.north west) {D10};
+    \end{tikzpicture}
+\endgroup
