@@ -1401,6 +1401,14 @@ Standard runs do not receive phase-change signals; separate buffer-clearing vari
 Controlled memory and credit-assignment diagnostics, including Ni et al.'s passive and active T-Maze tests \cite{ni2023}, vary observation delay, action--outcome delay, distractors, or relevant history to separate retrieval from temporal credit assignment under \Dref{6} \cite{pignatelli2024}.
 These designs distinguish memory span from credit-assignment span, but evaluating them separately does not establish both capabilities in the same agent throughout a continuing interaction.
 
+Continual Learning Bench (CL-Bench) evaluates continual learning in LLM-based systems across six domains spanning prediction, analysis, and interactive decision making \cite{asawa2026}.
+Its gain metric compares each system's performance with accumulated experience against its performance on the same instances without earlier history.
+Updates to context and external memory instantiate the online component of \Dref{1}, while dedicated adaptation and retention readouts probe \Dref{2}.
+Reuse of information across related instances provides evidence for the memory component of \Dref{6} and transfer under \Dref{7}, without isolating long-range credit assignment or reward-independent acquisition.
+Forecast accuracy additionally probes learned predictive regularities relevant to \Dref{8}, but does not establish predictions of consequences under candidate actions.
+The partial task-free rating reflects externally marked problem instances whose latent structure must still be inferred.
+Non-episodic coverage is also partial because workspace persistence coexists with renewed input data and action budgets, and some configurations additionally reset environment state between instances.
+
 Benchmarks from related research areas broaden the evaluated behavior without adopting a CRL protocol.
 The ARC-AGI series is explicitly presented as measuring progress toward AGI through the efficiency with which systems adapt to unfamiliar problems.
 ARC-AGI-1 and ARC-AGI-2 use static grid transformations, asking systems to infer novel rules from a few examples and apply them to new inputs, whereas ARC-AGI-3 moves this evaluation into an interactive setting \cite{arcprize2026}.
