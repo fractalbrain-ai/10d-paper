@@ -1371,7 +1371,7 @@ Forager provides a lightweight and configurable grid world with constant simulat
 Its experiments connect the \Dref{1} protocol to plasticity under \Dref{2} and state construction relevant to \Dref{6}: plasticity mitigations can preserve trainability, while reward traces and recurrent agents additionally help recover information missing from the current observation.
 These experiments do not, however, test persistent retrieval across substantial delays or isolate long-range credit assignment.
 
-AgarCL instead provides a richer visual environment with partial observability, hybrid control, endogenous dynamics, and opponents \cite{mohamed2025}.
+AgarCL instead provides a richer visual environment with partial observability, hybrid control, endogenous dynamics, and opponents \cite{mohamed2026}.
 Its primary game continues when the controlled agent dies, although the agent respawns, while accompanying mini-games isolate selected sources of difficulty under episodic and continuing protocols.
 The reported evaluations include continual backpropagation and recurrent agents, but primarily establish that the resulting learning problem remains difficult rather than demonstrating stability, persistent memory, or long-range credit.
 AgarCL therefore offers a broad challenge and several focused diagnostics, while aggregate performance in its full game remains difficult to attribute to any one desideratum.
@@ -1441,7 +1441,7 @@ Their episodic evaluation protocols also leave open whether one agent can contin
 The evaluations reviewed above provide complementary evidence rather than incomplete versions of one ideal benchmark.
 Benchmarks based on predefined task sequences support controlled and reproducible measurements of online performance, forgetting, and transfer, while reset-free and continuing worlds expose persistent consequences, autonomous exploration, state construction, and long-term adaptation.
 Focused diagnostics strengthen attribution for individual mechanisms, whereas richer environments can reveal integration failures that isolated tests miss.
-AgarCL and Melting Pot illustrate why multi-agent systems provide natural but difficult settings for evaluating aspects of CRL \cite{mohamed2025,leibo2021}.
+AgarCL and Melting Pot illustrate why multi-agent systems provide natural but difficult settings for evaluating aspects of CRL \cite{mohamed2026,leibo2021}.
 Other agents generate endogenous feedback, and when they also learn, their changing policies make experience non-stationary, so multi-agent testbeds naturally place several behavioral desiderata under simultaneous pressure \cite{nekoei2021,kim2021}.
 Performance in such a testbed can therefore provide suggestive evidence that several capabilities work together, but a high score neither establishes our broader CRL target nor identifies which desiderata account for success.
 A low score is equally difficult to diagnose without controlled variations and capability-specific readouts.
@@ -1486,7 +1486,7 @@ The human-playable implementation linked above is one realization of these rules
 \end{figure}
 
 The core scenario is parsimonious by design.
-Richer testbeds such as AgarCL deliberately combine many sources of difficulty, whereas this companion asks how much of the interplay among \Dref{2} and \Dref{6}--\Dref{10} can be expressed through compact, interpretable game rules in a two-dimensional grid world \cite{mohamed2025}.
+Richer testbeds such as AgarCL deliberately combine many sources of difficulty, whereas this companion asks how much of the interplay among \Dref{2} and \Dref{6}--\Dref{10} can be expressed through compact, interpretable game rules in a two-dimensional grid world \cite{mohamed2026}.
 Human players may consequently find the result exceptionally boring, but entertainment was never a design objective.
 The aim is to examine how the targeted capabilities work together before adding complexity that could make their contributions and failures harder to interpret.
 Collectively, the core mechanics were chosen to make the targeted desiderata behaviorally relevant and to create interactions among their associated capabilities.
@@ -1495,7 +1495,7 @@ The proposed benchmark does not fix readouts for the system-level \Dref{3}--\Dre
 Users can supplement the shared behavioral diagnostics with suitable measurements for their system.
 
 Forager already combines partial observability, biome structure, hidden reward changes, and an unending variant in which the agent's behavior helps generate new tasks \cite{tang2026}.
-AgarCL and JBW provide further precedents for persistent interaction and interacting game mechanics \cite{platanios2020,mohamed2025}.
+AgarCL and JBW provide further precedents for persistent interaction and interacting game mechanics \cite{platanios2020,mohamed2026}.
 Here, the salty bean's delayed hydration cost and the one-slot inventory create preparation and recovery problems while the moving blue-light objective competes with resource maintenance.
 Recurring color variants across biomes create opportunities to test retention and transfer.
 The intended contribution is this combination of mechanics and capability-specific readouts within one continuing lifetime (Table~\ref{tab:companion-diagnostics}).
