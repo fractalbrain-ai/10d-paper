@@ -1,12 +1,15 @@
 # Continual Reinforcement Learning Is an Integration Problem
 
+[![arXiv][arxiv-badge]][arxiv]
 [![Paper PDF][pdf-badge]][paper-pdf]
 [![Playable companion][companion-badge]][browser-game]
 
 This repository contains the LaTeX sources for *Continual Reinforcement Learning
 Is an Integration Problem*. The paper presents ten desiderata for continual
 reinforcement learning and examines representative approaches and evaluation
-settings.
+settings. Read the [arXiv version][arxiv] or the [repository PDF][paper-pdf].
+The repository PDF is built from `main` and may contain revisions not yet
+available on arXiv.
 
 The paper also introduces a small game as a playable companion to the
 desiderata and outlines a proposed benchmark based on its rules. The game
@@ -84,6 +87,7 @@ The archive is rebuilt only when its sources or packaging rules change.
 Pushes to `main` trigger the GitHub Actions workflow, which runs `make check`
 and updates the [PDF hosted on GitHub Pages][paper-pdf] if all checks pass.
 
+[arxiv-badge]: https://img.shields.io/badge/arXiv-2610.41809-B31B1B
 [pdf-badge]: https://img.shields.io/badge/paper-PDF-B85450
 [companion-badge]: https://img.shields.io/badge/companion-play-2B7A78
 [companion]: https://github.com/fractalbrain-ai/10d-game
@@ -94,4 +98,5 @@ and updates the [PDF hosted on GitHub Pages][paper-pdf] if all checks pass.
 [editing]: AGENTS.md
 [latexmk-config]: .latexmkrc
 [makefile]: Makefile
+[arxiv]: https://arxiv.org/abs/2610.41809
 [paper-pdf]: https://fractalbrain-ai.github.io/10d-paper/crl_desiderata.pdf
