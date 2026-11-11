@@ -203,6 +203,8 @@ Our claim is not that every desideratum remains individually unsolved, but that 
 
 This paper is deliberately selective.
 For a broad research agenda for CRL, see Schaul et al.\ \cite{schaul2018}; for a recent application-driven perspective on continual learning and its future directions, see Verwimp et al.\ \cite{verwimp2024}; for a review and taxonomy of CRL, see Khetarpal et al.\ \cite{khetarpal2022}; for a definition of CRL, see Abel et al.\ \cite{abel2023}; and for a domain-agnostic framework for characterizing lifelong-learning systems and their trade-offs, see Baker et al.\ \cite{baker2023}.
+Elelimy et al.\ critique the emphasis on fixed learned artifacts and episodic benchmarks, arguing for evaluating behavior throughout continual interaction \cite{elelimy2025}.
+Our desiderata complement this perspective by organizing the capabilities and system properties whose integration should be evaluated under shared protocol and resource conditions.
 Against this background, we make three concrete contributions:
 \begin{enumerate}
     \item We develop and motivate an opinionated set of ten desirable properties for the design and evaluation of CRL systems, spanning sustainable adaptation, bounded resources, information acquisition and memory, world knowledge, and long-horizon decision making and planning.
@@ -1338,6 +1340,12 @@ The reported Continual World and COOM setups supply task boundaries and use task
 Together, these suites provide reproducible evidence for \Dref{2} and transfer-related parts of \Dref{7}.
 The suites nevertheless retain episodic resets, so task-free runs do not instantiate the complete \Dref{1} protocol.
 
+MEAL (Multi-agent Environments for Adaptive Learning) extends staged evaluation to cooperative multi-agent learning, primarily through sequences of layouts in a cooking game \cite{tomilin2026}.
+Its main experiments train several agents together, while a separate experiment trains one agent to adapt to a scheduled sequence of fixed partners.
+Performance, forgetting, and plasticity readouts probe \Dref{2}, while forward transfer tests reuse under \Dref{7} without isolating reward-independent acquisition.
+The reported coordination and role-specialization diagnostics provide partial evidence for \Dref{10}, but do not test learned hierarchical composition of reusable subplans.
+The setups retain supplied task boundaries and task identities, used as policy inputs or to select task-specific heads, while episodic resets prevent action consequences from carrying across tasks.
+
 Continual multi-objective benchmarks extend this staged design to changes in which objectives provide reward signals \cite{li2024a}.
 Li et al.\ adapt discrete navigation tasks and MuJoCo locomotion environments (Hopper and Ant) to sequences of objective sets, testing policies across supplied linear preferences over all objectives encountered so far.
 Pareto-front and backward-transfer measurements probe outcome trade-offs under \Dref{9} and retention and adaptation under \Dref{2}, while comparisons with learning from scratch provide transfer-related evidence under \Dref{7}.
@@ -1371,7 +1379,7 @@ Forager provides a lightweight and configurable grid world with constant simulat
 Its experiments connect the \Dref{1} protocol to plasticity under \Dref{2} and state construction relevant to \Dref{6}: plasticity mitigations can preserve trainability, while reward traces and recurrent agents additionally help recover information missing from the current observation.
 These experiments do not, however, test persistent retrieval across substantial delays or isolate long-range credit assignment.
 
-AgarCL instead provides a richer visual environment with partial observability, hybrid control, endogenous dynamics, and opponents \cite{mohamed2026}.
+AgarCL instead provides a richer visual environment with partial observability, hybrid control, endogenous dynamics, and hand-coded opponents \cite{mohamed2026}.
 Its primary game continues when the controlled agent dies, although the agent respawns, while accompanying mini-games isolate selected sources of difficulty under episodic and continuing protocols.
 The reported evaluations include continual backpropagation and recurrent agents, but primarily establish that the resulting learning problem remains difficult rather than demonstrating stability, persistent memory, or long-range credit.
 AgarCL therefore offers a broad challenge and several focused diagnostics, while aggregate performance in its full game remains difficult to attribute to any one desideratum.
@@ -1441,8 +1449,9 @@ Their episodic evaluation protocols also leave open whether one agent can contin
 The evaluations reviewed above provide complementary evidence rather than incomplete versions of one ideal benchmark.
 Benchmarks based on predefined task sequences support controlled and reproducible measurements of online performance, forgetting, and transfer, while reset-free and continuing worlds expose persistent consequences, autonomous exploration, state construction, and long-term adaptation.
 Focused diagnostics strengthen attribution for individual mechanisms, whereas richer environments can reveal integration failures that isolated tests miss.
-AgarCL and Melting Pot illustrate why multi-agent systems provide natural but difficult settings for evaluating aspects of CRL \cite{mohamed2026,leibo2021}.
-Other agents generate endogenous feedback, and when they also learn, their changing policies make experience non-stationary, so multi-agent testbeds naturally place several behavioral desiderata under simultaneous pressure \cite{nekoei2021,kim2021}.
+AgarCL, Melting Pot, and MEAL expose different challenges of multi-agent interaction relevant to CRL \cite{mohamed2026,leibo2021,tomilin2026}.
+AgarCL uses hand-coded opponents, Melting Pot tests social generalization with fixed policy parameters, and MEAL evaluates cooperative learning across episodic task sequences.
+When several agents learn together, their changing policies add non-stationarity to the feedback generated by interaction, placing several behavioral desiderata under simultaneous pressure \cite{nekoei2021,kim2021}.
 Performance in such a testbed can therefore provide suggestive evidence that several capabilities work together, but a high score neither establishes our broader CRL target nor identifies which desiderata account for success.
 A low score is equally difficult to diagnose without controlled variations and capability-specific readouts.
 Within this benchmark selection, \Dref{9} receives only partial diagnostic coverage through tests of competing objectives and indirect comparisons in social dilemmas.
@@ -1753,7 +1762,7 @@ The integrated setting has a related ambiguity because its behavioral situations
 For example, salty-bean opportunities require earlier effect information to remain available under \Dref{6}, to be composed into action-conditional predictions under \Dref{8}, and to be evaluated as a trade-off under \Dref{9}.
 The corresponding behavioral readouts do not isolate these contributions, and the core scenario neither changes the underlying effect relations nor queries predictions directly, so it does not establish counterfactual reasoning, causal correctness, or continual world-model revision.
 We deliberately combine diagnostics so that a single fixed agent and configuration must face them all; using a separately tuned architecture for each diagnostic would miss the point.
-Integration also exposes cross-capability interference that isolated diagnostics can miss.
+Integration can also expose cross-capability interference that isolated diagnostics can miss.
 An agent may retain competence within one problem family yet lose it while adapting representations, memory, or control for another behavioral capability.
 \Dref{2} is therefore cross-cutting: capability-specific performance should be tracked throughout the same lifetime so that passing each diagnostic in isolation is not mistaken for preserving the combined competence portfolio.
 Yet behavior alone cannot reveal whether that system is monolithic or a router over specialists.
