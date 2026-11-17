@@ -147,7 +147,8 @@ Despite sustained progress, however, no general solution to this learning proble
 
 \subsection{Motivation and Research Gap}
 
-Deployment environments may have relevant properties that were not fully known during training, while operating conditions, objectives, and sensing capabilities may also change over time \cite{khetarpal2022}.
+An agent may encounter situations that were not anticipated during training, and its environment may change over time \cite{khetarpal2022}.
+Even when the underlying dynamics remain unchanged, an agent that cannot represent the whole world may need to revise its knowledge as different situations become relevant \cite{elelimy2025}.
 These demands motivate learning from ongoing interaction, especially when repeated retraining from scratch is impractical \cite{verwimp2024}.
 Current practice falls short of the continual-learning ambition in several distinct ways.
 One limitation is that standard deep-learning methods are commonly trained in a separate weight-updating phase and then deployed with fixed parameters, while sustained updating across changing data can progressively impair further learning \cite{dohare2024}.
@@ -1369,8 +1370,8 @@ Performance across velocity changes provides partial evidence for \Dref{2} witho
 
 Jelly Bean World (JBW) provides a configurable testbed for never-ending learning through procedurally generated worlds, local observations, and persistent interaction \cite{platanios2020}.
 It can additionally support multi-task, multi-agent, multimodal, and curriculum settings, although which desiderata a JBW experiment probes depends on its configuration and evaluation protocol.
-Anand and Precup's PT-DQN experiment uses JBW for one continuing interaction with recurring reward preferences and no observed task identity \cite{anand2023}.
-The reward reversals follow a fixed schedule but are not announced, so this experiment instantiates \Dref{1}.
+Elelimy et al.\ identify JBW as an alternative to episodic benchmarks \cite{elelimy2025}, and Anand and Precup use it to evaluate PT-DQN under recurring changes in bean rewards \cite{anand2023}.
+In the PT-DQN experiment, these changes follow a fixed but unannounced schedule while the agent learns online without resets or supplied task identities, instantiating \Dref{1}.
 Its reward-rate measurements probe adaptation to recurring changes under \Dref{2}, but do not separately isolate retention of earlier abilities.
 JBW also provides the environmental basis for the playable companion in Section~\ref{sec:benchmark-proposal}, where we adapt its continuing procedural world to combine selected behavioral pressures in one scenario.
 
@@ -1741,9 +1742,13 @@ Any evaluation observes only a finite part of the lifetime we intend to model an
 Learning, adaptation, and learning to adapt are conceptually distinct, but a finite behavioral evaluation cannot cleanly separate them; the classification also depends on what changing state is included in the agent description \cite{abel2023}.
 Nor should lifelong competence require parameters to change forever: an agent may learn a sufficiently general adaptation procedure in finite time and subsequently apply it with fixed learned parameters.
 This is compatible with the behavioral target if incoming evidence can still change persistent internal state and future behavior when relevant.
-Conversely, once every permitted variation can be handled without incorporating further experience, the benchmark has reached a ceiling and no longer provides pressure for continual learning.
-One reason is sample efficiency.
-In a continuing lifetime, experience is not freely repeatable: actions alter subsequent states, opportunities may disappear, and the world or the agent's resources may drift.
+More generally, a benchmark no longer provides pressure for continual learning once an agent can handle every permitted variation without incorporating further experience \cite{elelimy2025}.
+Our proposed benchmark shares this limitation because its bean effects remain fixed and its color variants are drawn from a finite set.
+Once an agent has learned these relations and how to use them, further interaction may primarily test the retention and coordinated application of established abilities.
+Nevertheless, finite evaluations remain useful for studying how those abilities are acquired and maintained, but their duration alone does not establish continued learning.
+
+The proposed readouts can characterize how efficiently an agent acquires useful abilities during the evaluated lifetime.
+This matters in a continuing interaction because experience is not freely repeatable: actions alter subsequent states, opportunities may disappear, and the world or the agent's resources may drift.
 Episodic learners are also limited by time and compute, but resets make repeated sampling of essentially the same situation available in principle.
 A useful CRL agent must therefore be ``sufficiently'' sample efficient, even though no task-independent threshold for sufficiently exists \cite{naik2019,abel2023}.
 Chollet frames intelligence as skill-acquisition efficiency relative to priors, experience, and generalization difficulty \cite{chollet2019}.
