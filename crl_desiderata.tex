@@ -1,5 +1,8 @@
 \documentclass[10pt,journal,compsoc]{IEEEtran}
 
+\newif\ifincludepilotprompts
+\includepilotpromptstrue
+
 \usepackage[T1]{fontenc}
 
 \ifCLASSOPTIONcompsoc
@@ -1473,8 +1476,8 @@ Its scenario, suggested default configuration, evaluation protocol, and diagnost
 This dual role illustrates how several behavioral desiderata can matter simultaneously within one task-free, non-episodic online lifetime.
 Its deliberately compact rules make their interactions easier to inspect and provide a shared example through which the behavioral desiderata can be examined together.
 
-We present the companion to illustrate how the desiderata interact and to propose readouts for studying those interactions.
-Providing an agent-evaluation package, calibrating the protocol, and comparing representative agents under declared resource budgets extend beyond this explanatory focus and remain future work.
+Section~\ref{sec:companion-pilot} illustrates several of the proposed behavioral readouts by comparing two language models' actions with the findings and plans they recorded earlier in the same lifetime.
+A general evaluation package, protocol calibration, and systematic comparisons under declared resource budgets remain future work.
 The diagnostic scope reflects the aim of retaining compact, interpretable rules.
 The core does not directly test counterfactual reasoning or continual world-model revision, and extending this coverage while preserving simplicity remains an open design problem.
 Full assessment of the system-level aspects of \Dref{3}--\Dref{5} also requires additional implementation-specific evidence.
@@ -1570,7 +1573,7 @@ Their visual colors vary across biomes, but their effects remain fixed throughou
 \end{table*}
 
 The suggested default configuration is summarized in Table~\ref{tab:companion-defaults}.
-Let $s_t$ and $h_t$ denote satiety and hydration, both bounded to $[-100,100]$, initialized at $100$, and reduced by a fixed amount on every tick.
+Let $s_t$ and $h_t$ denote satiety and hydration, both bounded to $[-100,100]$, initialized at 100, and reduced by a fixed amount on every tick.
 Values below zero contribute the resource penalty
 \begin{equation}
     p_t=\min(s_t,0)+\min(h_t,0).
@@ -1638,13 +1641,13 @@ The first-recovery diagnostic therefore combines reward-independent acquisition 
     \end{tabularx}
 \end{table}
 
-Because the four flavors are equally likely, the default bean probability of $0.01$ corresponds to a probability of $0.01/4=0.0025$ per cell for any particular flavor.
-At the default decay rate, the $+3$ gain from one satiety bean offsets only $30$ ticks of satiety decay.
+Because the four flavors are equally likely, the default bean probability of 0.01 corresponds to a probability of $0.01/4=0.0025$ per cell for any particular flavor.
+At the default decay rate, the $+3$ gain from one satiety bean offsets only 30 ticks of satiety decay.
 Relying on satiety beans alone is therefore intended to leave little slack once search and travel are taken into account, even for an agent that pursues them aggressively.
-A salty bean instead offsets $100$ ticks of satiety decay; when its later hydration cost is anticipated and compensated, this additional margin permits more exploration and more time near the moving sunlight maximum.
+A salty bean instead offsets 100 ticks of satiety decay; when its later hydration cost is anticipated and compensated, this additional margin permits more exploration and more time near the moving sunlight maximum.
 The salty bean is consequently not merely a delayed hazard, but a useful resource whose value depends on preparation and the agent's competing objectives.
 
-With these defaults and no bean effects, each resource takes $1000$ ticks to decay from its initial level to zero, compared with the salty bean's $10$-tick delay.
+With these defaults and no bean effects, each resource takes 1000 ticks to decay from its initial level to zero, compared with the salty bean's 10-tick delay.
 The long separation in the joint \Dref{6}--\Dref{7} diagnostic therefore comes from observing resource effects while the initial reserve keeps them reward-neutral and applying that knowledge at a much later deficit, not from treating the salty-bean delay itself as long-range credit assignment.
 
 The sunlight and resource mechanics also create plans at different temporal scales.
@@ -1786,11 +1789,92 @@ Success would therefore provide evidence about the targeted continual-learning c
 
 The benchmark's simplicity creates a second interpretive limitation: a sufficiently large pretrained system may solve it largely through scale without demonstrating continual learning during the evaluated lifetime.
 Generalist transformer policies already act across diverse control domains, embodied language models transfer broad prior knowledge into planning, and language-model-based agents explore open-ended simulated worlds while accumulating executable skills \cite{reed2022,driess2023,wang2024b}.
-We therefore conjecture that a sufficiently large language-model-based agent could solve the proposed benchmark, with or without an explicit reasoning scaffold.
-Such a result would be behaviorally valid, but it would provide limited evidence for CRL if a frozen model arrived with most of the solution or brute-force computation substituted for continued learning.
+The runs in Section~\ref{sec:companion-pilot} show how two model configurations behave under a fixed handover schedule that limits access to earlier experience.
+We still consider it plausible that a sufficiently capable language-model-based agent could solve the proposed benchmark, with or without an explicit reasoning scaffold.
+Success alone, however, would provide limited evidence for CRL, since prior training could supply much of the solution or extensive inference-time computation could compensate for limited learning during interaction.
 Because the environment and its interaction rules are deliberately compact, a comparatively compact system that acquires the necessary behavior during its evaluated lifetime would provide stronger evidence.
 Parameter count, pretraining data and compute, persistent storage, inference cost, and comparisons with simpler baselines should therefore accompany behavioral results.
 This benchmark serves primarily as a concrete companion to our desiderata and, at best, as a proposal to the community for testing several of them together; it is not a definitive test of CRL.
+
+\subsection{Illustrative Evaluation with Language Models}
+\label{sec:companion-pilot}
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics{figures/04_companion_traces/companion-traces.png}
+    \caption{Language-model runs on the companion with three matched seeds and 2000 steps per run.
+    The upper panels show hydration (initially 60) and satiety (initially 20), with dotted lines marking the resource penalty threshold at zero.
+    The lower panel shows cumulative reward for GPT-6 Luna (solid) and Qwen3.8 27B (dashed).}
+    \label{fig:companion-traces}
+\end{figure*}
+
+A bean can reveal its effect hundreds of steps before the agent needs it, giving us an opportunity to compare what the agent records at the time with what it does when the information becomes useful.
+We examined this relation in six runs of the companion, one 2000-step lifetime on each of seeds 42, 43, and 44 for GPT-6 Luna (high reasoning effort) and Qwen3.8 27B (xhigh reasoning effort, FP8) \cite{qwen2026}.
+Both configurations started from the same observation on each seed, with satiety and hydration set to 20 and 60, respectively, so that deficits could arise sooner than with the initial reserves of 100 each in Table~\ref{tab:companion-defaults}.
+The language-model harness asked for one action at a time, supplying a numerical description of the local field of view, both resource levels, and inventory occupancy, with the reward from each action included in the next observation.
+The shared instructions explained the available actions and named the resources \emph{hydration} and \emph{satiety}, giving a pretrained model clues to their significance before it took its first action.
+Which bean colors affected those resources and how the game calculated reward still had to be inferred during play.
+
+To accommodate a continuing interaction within a finite context window, we replaced the conversation history with a model-written summary every 25 game steps.
+In preliminary trials with several prompts, we found it helpful to frame each block as one teammate's episode of play and to give the team a common objective of maximizing cumulative reward over the entire lifetime.
+Within a run, the same model played all 80 blocks with fixed parameters and no external tools.
+After observing the outcome of its last action in a block, the model summarized its findings, hypotheses, and unfinished plans.
+The next block began in a fresh context with that summary, the original instructions, the latest observation, and the preceding action.
+The handover determined when the agent had to consolidate its experience, but it signaled no change of task under \Dref{1}, and position, inventory, and pending consequences carried over without a game reset.
+
+The fixed schedule placed handovers at the same game steps for both models, while the amount of text accumulated between handovers depended on the observations and replies.
+We allowed up to 8192 generated tokens per action or summary attempt for GPT and 32,768 for Qwen, including reasoning and the final reply.
+Qwen retained its reasoning text within each block, and its summary requests had a median input length of about 100k tokens on the first attempt at each handover.
+To accommodate the few exchanges whose combined input and output exceeded Qwen's native 262,144-token window, we set the vLLM context limit to one million tokens and applied static YaRN \cite{peng2024} with a scaling factor of four to every action and summary request.
+\ifincludepilotprompts
+    Appendix~\ref{app:pilot-prompts} reproduces the prompts and gives the request protocol and inference settings.
+\fi
+
+\Cref{fig:companion-traces} shows how hydration, satiety, and cumulative reward evolved over the six runs.
+The first handover in each run already associated reward with the blue channel, with five summaries recording that ordinary reward matched the value at the agent's position divided by 255.
+All six agents followed the bright band closely over the first 200 steps, collecting roughly 97\% or more of the available light reward as it moved away from the starting cell.
+Across the full lifetime, light reward ranged from about 60\% to 99\% of the available total, reflecting differences in how well the agents sustained this behavior.
+
+Even with this variation in light reward, resource penalties accounted for most of the difference in cumulative reward between the two runs on each seed.
+On seeds 42 and 43, Qwen's longest hydration deficits lasted 29 and 27 steps, respectively, compared with more than 200 consecutive steps for GPT on each seed.
+On seed 44 the ordering reversed, with Qwen spending 211 consecutive steps below zero while GPT recovered from every hydration deficit within 49 steps.
+The paths taken through each world also determined what the agents had an opportunity to learn.
+On seed 43, GPT stayed in the starting biome, while Qwen entered two further biomes and ate a bean of a previously untried color as late as step 1904.
+
+The summaries also let us follow individual discoveries across the lifetime, as suggested by the readouts in Table~\ref{tab:companion-diagnostics}.
+On seed 42, GPT ate a bean at step 73 that raised hydration from 52.8 to 62.7 while both resources were positive and the reward stayed unchanged.
+Its summaries retained the association between that color and hydration, and at step 500 it ate another bean of the same color as hydration approached zero, raising it from 0.1 to 10.0.
+The sequence illustrates how an effect observed before it matters for reward (\Dref{7}) can remain available for later use (\Dref{6}), although the contribution of that early exposure would require a comparison with an agent lacking it.
+Useful discoveries could also disappear from the written record.
+In all three runs GPT ate a bitter bean whose penalty it had previously observed and recorded.
+On seed 43 its early summaries warned against a color that had incurred a penalty at step 4, yet the step-975 summary described the color as untested and the agent incurred the same penalty again six steps later.
+
+Retention could even differ for two facts needed to carry out a single plan.
+On seed 43, four successive Qwen summaries correctly identified the hydration bean picked up at step 1660, although the observation revealed only that the inventory was occupied.
+An earlier summary had also recorded that a carried bean must be dropped before it can be eaten, but by step 1750 the summary again described eating directly from inventory as untested.
+The next block repeated the ineffective action before dropping and eating the bean, even though the system prompt still specified that the eat action applies to a bean underfoot.
+A readout based only on memory for the bean's identity (\Dref{6}) would therefore miss that a previously successful procedure had become unreliable (\Dref{2}).
+
+The salty bean posed a different problem because the immediate satiety gain and the later hydration loss had to be linked across intervening actions.
+GPT encountered the same ten-step delay on all 48 salty-bean consumptions across its three runs, and in 29 cases the additional 10-point loss took hydration from a nonnegative level to a deficit.
+The summaries repeatedly treated the losses as unexplained, even on seed 44 where the first consumption and its consequence both fell within the first block.
+On seed 42, GPT ate a salty bean with hydration at 4.4 and no known hydration bean in view, and the delayed loss left it in deficit for 32 steps.
+Qwen's run on seed 43 illustrates the difficulty of drawing conclusions about prediction (\Dref{8}) from a high return.
+It collected about 1972 of the 2000 available in light reward and finished with a cumulative reward of about $+1499$, yet its summary attributed a delayed hydration loss to entering a particular cell and the final summary still considered location or timing as possible causes.
+
+On seed 42, Qwen instead used the delay to prepare for the loss while pursuing the light reward.
+After eating a salty bean at step 1248, it passed on both a prediction of the impending loss and a route to a hydration bean in the step-1250 summary.
+The next block followed the route and replenished hydration at step 1255, three steps before the loss occurred, while collecting nearly maximal light reward throughout.
+The predicted loss (\Dref{8}) mattered for the trade-off under \Dref{9} because a reachable hydration bean allowed the agent to keep the satiety benefit at little cost in light reward.
+On seed 43 it also interrupted light tracking for a planned foraging detour and returned to near-maximal illumination five steps after replenishing satiety.
+Both traces illustrate the coordination of overlapping plans under \Dref{10}, while leaving open whether the agent learned a reusable hierarchy of subplans.
+
+Taken together, the actions and summaries distinguish two difficulties that the reward curves alone leave unresolved.
+An agent could lose a finding that had previously guided behavior, as with the warning about the bitter bean, or carry forward an incorrect explanation that continued to guide its decisions, as with the suspected hazardous cells.
+Both patterns remained visible in the final handovers, with GPT on seed 43 still treating the bitter color as untested and Qwen on seed 44 attributing the delayed hydration loss to invisible traps\ifincludepilotprompts\ (Appendix~\ref{app:companion-final-handovers})\fi.
+Any handover that replaces earlier messages with a summary leaves room for such omissions or errors, but our schedule often required compaction well before the available context window filled.
+Longer blocks or a policy that retains recent messages in full could change which information survives, so the frequency of these failures and the performance attainable with either model under other handover policies remain open.
+With either change, though, the agent would still need to connect delayed effects to earlier actions and preserve findings whose relevance may become apparent much later.
 
 \section{Conclusion}
 
@@ -1818,5 +1902,11 @@ In particular, we are grateful to Karl Tuyls, Gregory Makoff, Gerald Tesauro, Mu
 
 \bibliographystyle{IEEEtran}
 \bibliography{crl_desiderata}
+
+\ifincludepilotprompts
+    \clearpage
+    \appendices
+    \input{appendix}
+\fi
 
 \end{document}

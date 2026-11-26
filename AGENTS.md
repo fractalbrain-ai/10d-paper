@@ -16,6 +16,7 @@ Edits should preserve the distinction between:
 
 - `crl_desiderata.tex` is the canonical manuscript.
 - `crl_desiderata.bib` is the canonical bibliography.
+- `appendix.tex` contains the optional appendix for the language-model evaluation. Set `\includepilotpromptstrue` or `\includepilotpromptsfalse` at the top of `crl_desiderata.tex` to control the appendix and its in-text references.
 - `figures/` contains the manuscript figures and their editable sources.
 - `build/` contains generated LaTeX output and should not be edited manually.
 

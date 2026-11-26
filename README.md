@@ -70,6 +70,15 @@ boxes. Remove auxiliary build files with:
 make clean
 ```
 
+### Plot the companion runs
+
+The six [run logs][run-logs] are stored as xz-compressed JSON Lines. With
+Matplotlib and the paper's TeX fonts installed, regenerate the figure with:
+
+```bash
+make companion-analysis EXPERIMENT_PYTHON=python3
+```
+
 ### Prepare an arXiv upload
 
 With `zip` installed, run:
@@ -79,7 +88,7 @@ make arxiv
 ```
 
 This runs the checks above and creates `build/crl_desiderata-arxiv.zip` with
-the LaTeX sources, bibliography, and required images.
+the LaTeX sources, bibliography, required images, and run logs under `anc/`.
 The archive is rebuilt only when its sources or packaging rules change.
 
 ### Automated builds
@@ -95,6 +104,7 @@ and updates the [PDF hosted on GitHub Pages][paper-pdf] if all checks pass.
 [manuscript]: crl_desiderata.tex
 [bibliography]: crl_desiderata.bib
 [figures]: figures/
+[run-logs]: experiments/
 [editing]: AGENTS.md
 [latexmk-config]: .latexmkrc
 [makefile]: Makefile

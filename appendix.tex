@@ -1,0 +1,259 @@
+\newtcolorbox{pilotmessage}[2][]{
+    enhanced jigsaw, sharp corners,
+    colback=black!3, colframe=black!35, colbacktitle=black!10,
+    coltitle=black, fonttitle=\sffamily\bfseries, boxrule=0.4pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt,
+    before upper={\raggedright\setlength{\parskip}{0.35\baselineskip}},
+    title={#2},
+    title after break={#2 (continued)},
+    #1
+}
+
+\raggedbottom
+\section{Language-Model Evaluation}
+\label{app:pilot-prompts}
+
+The illustrative evaluation in Section~\ref{sec:companion-pilot} uses the language-model harness from revision \href{https://github.com/fractalbrain-ai/10d-game/commit/f9fdb087fbd5328e1678ed22974bb2c539a7e927}{\texttt{f9fdb08}} of the companion's \href{https://github.com/fractalbrain-ai/10d-game}{\texttt{10d-game}} repository.
+Each run connects one fixed model configuration to one seeded game for 2000 steps.
+The harness sends the model a numerical observation, applies the action it selects, and requests a written handover after every 25 actions.
+The teammate taking over in the prompt is the same model in a fresh context, so the experiment has a single player throughout and only the conversation is restarted.
+
+Boxes marked ``prompt text'' reproduce the instructions sent to the model.
+Boxes marked ``JSON template'' show the fields and fixed values of the user messages, with angle brackets marking values supplied at runtime.
+
+\subsection{System Prompt}
+
+The harness starts every block with the same system instructions, including at the start of the run.
+The instructions present each block as one teammate's episode of control and ask the team to maximize cumulative reward over the entire game.
+They explain the available actions, the observation format, and what the outgoing teammate should record for the next block.
+The model must infer the bean effects and reward rules through interaction.
+
+\begin{pilotmessage}[breakable]{System message --- prompt text}
+    \noindent\textbf{Game instructions}\par
+    You are part of a team of agents playing one continuing game in sequence.
+    The game's mechanics and reward rules are initially unknown to the team.
+    Previous teammates pass their findings, hypotheses, and unfinished work to you in \verb|memory|.
+    Build on their work and learn from your own actions and observations to maximize the team's long-term cumulative reward across all episodes.
+
+    You control the game for one episode, whose action budget is provided in each action request.
+    The next teammate takes over where you stop.
+    The game does not reset between episodes: position, inventory, and game conditions carry over.
+
+    You cannot die: the game continues regardless of your satiety or hydration levels, with no terminal state.
+    No tools are available.
+
+    \noindent\textbf{Your episode}\par
+    Action requests have \verb|request: "action"| and these step counters:
+    \begin{itemize}
+        \item \verb|episode_step|: your step within this episode, starting at 1.
+        \item \verb|episode_steps|: the number of actions allocated to this episode.
+        \item \verb|step|: the global step across the team's episodes, including resumed runs.
+    \end{itemize}
+
+    \verb|previous_action| ran once at global \verb|step - 1|.
+    The \verb|observation|, including its \verb|reward|, shows that action's result.
+    Use global steps when recording measurements so the next teammate can interpret experiments across episodes.
+
+    The first action request includes \verb|memory| from the previous teammate.
+    Use it to continue its work.
+    At the start of a new game, memory is empty and both \verb|previous_action| and \verb|reward| are null.
+
+    Choose one action per request, continuing your current plan or deliberately revising it.
+    A valid action advances the game by one tick; its result arrives in the next action or summary request.
+    Earlier observations and complete accepted replies, including reasoning, remain available throughout your episode.
+
+    Even on the final episode step (\verb|episode_step == episode_steps|), return an action for \verb|request: "action"|.
+    Write memory only when \verb|request: "summary"| arrives after that action has run.
+
+    \noindent\textbf{Memory for the next teammate}\par
+    After your final action, \verb|request: "summary"| provides its result in \verb|observation| and asks for your memory.
+    Combine the previous teammate's memory with what you learned during this episode.
+    Include:
+    \begin{itemize}
+        \item Established findings about game mechanics, how to interpret observations, what actions do, and what determines reward, with supporting evidence.
+        \item Clearly labeled hypotheses, separate from observed facts: their motivation, evidence for and against them, why they remain unconfirmed, and your confidence with reasons.
+        \item Ongoing experiments and plans: the hypothesis, baseline and later measurements with global steps, actions taken, results so far, and what to do or observe next.
+        Plans and experiments may continue across multiple episodes.
+    \end{itemize}
+
+    Memory may contain mistakes.
+    Check its claims against observations, preserve well-supported findings, and record evidence for corrections.
+    A rule is not disproved when its conditions are absent.
+
+    Write a complete, self-contained replacement memory.
+    The next teammate receives only this memory, the game instructions, and the latest observation; omitted findings, reasoning, and plans are lost.
+    Preserve enough to continue the work without repeating reasoning or experiments.
+
+    Summarizing does not advance the game.
+    The next teammate initially sees the same observation you just summarized; no additional action has run.
+
+    \noindent\textbf{Rejected replies}\par
+    \verb|reply_error| is null on the first attempt at each request.
+    Otherwise it describes why your previous reply was rejected.
+    Correct it and answer the same request again.
+    A rejected reply does not advance either step counter, run an action, enter conversation history, or update memory.
+    The observations and accepted context stay unchanged.
+
+    \noindent\textbf{Actions}\par
+    \begin{itemize}
+        \item \verb|NOP|: wait one tick.
+        \item \verb|MOVE_NORTH|: move one cell by \verb|(dx, dy) = (0, +1)|.
+        \item \verb|MOVE_EAST|: move one cell by \verb|(dx, dy) = (+1, 0)|.
+        \item \verb|MOVE_SOUTH|: move one cell by \verb|(dx, dy) = (0, -1)|.
+        \item \verb|MOVE_WEST|: move one cell by \verb|(dx, dy) = (-1, 0)|.
+        \item \verb|EAT_BEAN|: eat the bean beneath you, if present.
+        \item \verb|PICKUP_BEAN|: pick up the bean beneath you if your inventory is empty.
+        \item \verb|DROP_BEAN|: place your carried bean beneath you if that cell is empty.
+    \end{itemize}
+    An inapplicable action behaves like \verb|NOP|.
+
+    \noindent\textbf{Observations}\par
+    Observations contain \verb|reward|, \verb|satiety_level|, \verb|hydration_level|, \verb|inventory_count|, and \verb|fov|.
+    You occupy relative coordinate \verb|(0, 0)|; east is \verb|+x| and north is \verb|+y|.
+
+    \verb|fov.beans| lists visible beans as \verb|[dx, dy, channel_1, channel_2]|.
+    These channels are observed features, not labels for effects.
+
+    \verb|fov.channel_3| is a row-major matrix of numeric values.
+    Rows run from south to north; columns run from west to east.
+    For a matrix with \verb|H| rows and \verb|W| columns, coordinate \verb|(dx, dy)| maps to \texttt{fov.channel\_3[H // 2 + dy][W // 2 + dx]}.
+
+    \noindent\textbf{Response}\par
+    For \verb|request: "action"|, return one JSON object with exactly one field, \verb|action|: one of the action names above.
+
+    Example: \verb|{"action": "NOP"}|
+
+    For \verb|request: "summary"|, return exactly one field, \verb|memory|: a nonempty string containing your complete memory for the next teammate, in any format.
+
+    Keep reasoning in the separate reasoning channel.
+    The final answer must contain only the JSON object, without Markdown fences or surrounding text.
+\end{pilotmessage}
+
+\subsection{Action Request}
+
+Before each game step, the harness appends a user message with the current observation and asks for one action.
+The global counter \verb|step| identifies the action about to be taken, and \verb|episode_step| gives its index within the current block, starting at one.
+The request also gives the action budget for the block and names the action whose result appears in \verb|observation|.
+That observation contains the preceding reward, both resource levels, the inventory count, and the local field of view encoded as a list of visible beans and a matrix of numeric values.
+At the start of a new run, both \verb|previous_action| and the reward in the observation are \verb|null|.
+
+The first action request of each block includes \verb|memory|, which holds the preceding block's summary and starts as an empty string in a new run.
+Subsequent requests accumulate in the same conversation alongside the accepted assistant replies, including any reasoning text returned by the endpoint.
+Qwen returned reasoning text that remained available within the block, while the GPT endpoint returned the action or summary without exposing its reasoning text to the next request.
+After accepting the model's reply, the harness applies the chosen action for one game tick and obtains the next observation.
+
+\begin{pilotmessage}{Action request --- JSON template}
+\begin{verbatim}
+{
+    "request": "action",
+    "step": <global step>,
+    "episode_step": <local step>,
+    "episode_steps": <action budget>,
+    "previous_action": <action or null>,
+    "observation": <current observation>,
+    "reply_error": null,
+    "memory": <incoming summary>
+}
+\end{verbatim}
+\end{pilotmessage}
+
+\subsection{Summary Request}
+
+After applying the last action of the block, the harness appends a summary request containing that action's result to the same conversation.
+The model can use the observations and replies from the block, together with the incoming memory, to write a self-contained replacement summary.
+
+\begin{pilotmessage}{Summary request --- JSON template}
+\begin{verbatim}
+{
+    "request": "summary",
+    "instructions": <text below>,
+    "observation": <current observation>,
+    "reply_error": null
+}
+\end{verbatim}
+\end{pilotmessage}
+
+\begin{pilotmessage}{Summary instructions --- prompt text}
+    This episode's actions are complete.
+    After your summary is accepted, the next teammate continues the same game from this state without a reset.
+    It receives only your new memory, the game instructions, and the latest observation.
+    All other context is lost: anything learned, inferred, or planned that you omit from memory will not be available to it.
+    Write a complete, self-explanatory memory that stands on its own, without references to this conversation or earlier messages.
+    Combine prior memory with this episode's observations and reasoning, including the last action's result shown in observation.
+    Follow the memory requirements in the game instructions.
+    Return only a JSON object with a nonempty memory string; do not choose an action.
+\end{pilotmessage}
+
+Once the summary is accepted, the harness keeps its \verb|memory| string and starts a new conversation with the original system prompt.
+For example, the summary request after action 25 and the action request for step 26 contain the same observation, including the reward from action 25.
+The latter request also identifies action 25 as the preceding action and supplies the new summary, but none of the earlier conversation messages are available.
+Writing a summary takes no game steps, so a pending hydration loss remains due on the same game tick even when the action that triggered it and its consequence fall in different blocks.
+
+\subsection{Reply Validation and Retries}
+
+The harness requires a normally completed reply containing a JSON object with exactly one field.
+An action reply must give a valid action name in \verb|action|, and a summary reply must give a nonempty string in \verb|memory|.
+On a validation failure, the harness resends the request with the validation error in \verb|reply_error|.
+For action requests, it appends a line beginning with \verb|Valid action names:| followed by the comma-separated list of actions from the system prompt.
+The harness allows up to ten attempts per request, and a rejected reply leaves the game state and the accepted conversation history unchanged.
+
+\subsection{Inference Settings and Context Use}
+
+GPT-6 Luna used high reasoning effort and a limit of 8192 generated tokens per request attempt, while Qwen3.8 27B used xhigh reasoning effort with FP8 weights and a limit of 32,768.
+These limits apply separately to each attempt at an action or a summary and include both reasoning tokens and the final JSON reply.
+For Qwen, thinking and within-block reasoning retention were enabled, with temperature 1.0, top-$p$ of 0.95, and top-$k$ of 20.
+
+The vLLM server used a static YaRN scaling factor of four and a context limit of one million tokens for every Qwen request, including retries.
+Across the 240 blocks in the three Qwen runs, the median input length on the first summary attempt was about 100,000 tokens and the median combined input and output length was about 111,000.
+Across all 6349 action and summary attempts, including retries, the combined length exceeded the native 262,144-token limit on 18 occasions and peaked at about 483,000 tokens.
+
+\newpage
+\subsection{Final Handover Summaries}
+\label{app:companion-final-handovers}
+
+The final handovers at step 2000 retained useful rules alongside incorrect explanations (Table~\ref{tab:companion-final-handovers}).
+The runs ended before another block could use these summaries.
+
+\begin{table}[!htbp]
+    \caption{Selected inferences about game mechanics from the agents' final handovers, including unresolved hypotheses and incorrect explanations.}
+    \label{tab:companion-final-handovers}
+    \centering
+    \begin{tabularx}{\columnwidth}{
+        @{}
+        c
+        >{\raggedright\arraybackslash}X
+        >{\raggedright\arraybackslash}X
+        @{}
+    }
+        \toprule
+        \textbf{Seed} & \textbf{GPT-6 Luna} & \textbf{Qwen3.8 27B} \\
+        \midrule
+        42 &
+        Light minus both deficits.\newline
+        Three restorative colors. Bitter effect uncertain.\newline
+        Loss unexplained. &
+        Light minus both deficits.\newline
+        Three restorative colors and a bitter color.\newline
+        Loss linked to salty beans. \\
+        \addlinespace
+        43 &
+        Light minus hydration deficit.\newline
+        Three restorative colors. Bitter color called untested.\newline
+        Loss unexplained. &
+        Light minus both deficits and one-off penalties.\newline
+        Calls a previously eaten color unseen.\newline
+        Loss possibly periodic, random, or location-based. \\
+        \addlinespace
+        44 &
+        Light minus both deficits.\newline
+        Two restorative colors.\newline
+        Loss possibly periodic. &
+        Light minus both deficits.\newline
+        Restorative and bitter colors.\newline
+        Invisible traps on entry. \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+On seed 42, GPT recorded ``intermittent abrupt hydration drops of roughly 10'' and wrote that ``their trigger remains unknown.''
+For the salty color $[255,66]$, Qwen recorded ``s+10 immediate and h-10 about 10 ticks later,'' a prediction it had already used to plan a route to a hydration bean (Section~\ref{sec:companion-pilot}).
