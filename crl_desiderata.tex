@@ -822,15 +822,17 @@ Relative to our broader CRL target, the evidence across these architectures come
 Storing information is useful only if the agent can retrieve it when it becomes relevant to the current situation.
 Attractor-based associative memories provide such state-driven retrieval directly: a partial or noisy input settles into the closest stored pattern such that retrieval is a fixed-point computation rather than a learned addressing policy.
 Classical Hopfield networks store patterns as attractors of a recurrent energy-based network \cite{hopfield1982}, Dense Associative Memory raises capacity through higher-order interactions \cite{krotov2016}, and the continuous formulation of Ramsauer et al.\ retrieves patterns in effectively one step with an update rule equivalent to transformer attention \cite{ramsauer2021,vaswani2017}.
-This equivalence lets us read a transformer's context window as associative memory, with the contents being discarded once they leave the window.
 For \Dref{6}, these models contribute content-addressed retrieval, an important component of persistent memory, but do not establish the broader capability: their high capacity holds only for sufficiently separated patterns, they do not decide which patterns to store or release under the budget of \Dref{3}, and storing patterns sequentially can cause forgetting, as discussed under \Dref{2} \cite{mcalister2025}.
-Titans provides a recent step from retrieval toward persistent memory by adding a neural long-term memory that keeps learning at test time \cite{behrouz2025}.
-The memory is a small network whose parameters update during inference, with larger updates for surprising inputs and a learned forgetting mechanism that releases outdated content, while attention serves as short-term memory over the current context.
-Deciding what to store and what to release thus becomes part of the model, as \Dref{6} requires under the budget of \Dref{3}.
-However, the supporting evidence so far comes from finite sequence-modeling tasks such as language modeling and long-context retrieval, not from a continual-learning agent.
 
-Hyperdimensional computing provides a complementary approach to representing and retrieving structured information.
-Its algebraic operations allow related information to be combined in one vector and individual associations to be recovered through a suitable query \cite{kanerva2009}.
+In a transformer, attention provides associative retrieval over the tokens in the current context window.
+MemGPT keeps earlier messages retrievable after they leave this window by archiving them and allowing the language model to bring them back into context, a mechanism evaluated in multi-session dialogue \cite{packer2023}.
+Because the archive grows with the interaction, operating under the finite storage budget of \Dref{3} would eventually require deciding which messages to release.
+Titans addresses the problem of selective retention by coupling attention over the current context with a fixed-size neural memory that updates at test time \cite{behrouz2025}.
+The memory's update rule produces larger parameter changes for surprising inputs and uses adaptive weight decay to reduce the influence of earlier inputs.
+The Titans experiments test this mechanism on finite sequence-modeling tasks such as language modeling and long-context retrieval, but leave open whether it can sustain persistent memory over an agent's lifetime.
+
+How information is represented also affects the cost of storing and retrieving it.
+Hyperdimensional computing uses algebraic operations to combine related information in one vector and recover individual associations through a suitable query \cite{kanerva2009}.
 Teeters et al.\ compare storing associations in a single vector with using a sparse distributed associative memory \cite{teeters2023}.
 Their experiments with large finite-state automata show that the associative memory can reduce storage and retrieval costs at matched recall reliability.
 For \Dref{6}, these mechanisms support the organization and efficient retrieval of memory contents, but leave open how a continual agent decides what to retain, update, or discard under bounded resources.
