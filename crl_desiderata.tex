@@ -1815,7 +1815,7 @@ The language-model harness asked for one action at a time, supplying a numerical
 The shared instructions explained the available actions and named the resources \emph{hydration} and \emph{satiety}, giving a pretrained model clues to their significance before it took its first action.
 Which bean colors affected those resources and how the game calculated reward still had to be inferred during play.
 
-To accommodate a continuing interaction within a finite context window, we replaced the conversation history with a model-written summary every 25 game steps.
+To accommodate a continuing interaction within a finite context window, we used fixed-interval summarization \cite{li2026}, replacing the conversation history with a model-written summary every 25 game steps.
 In preliminary trials with several prompts, we found it helpful to frame each block as one teammate's episode of play and to give the team a common objective of maximizing cumulative reward over the entire lifetime.
 Within a run, the same model played all 80 blocks with fixed parameters and no external tools.
 After observing the outcome of its last action in a block, the model summarized its findings, hypotheses, and unfinished plans.
@@ -1873,8 +1873,9 @@ Taken together, the actions and summaries distinguish two difficulties that the 
 An agent could lose a finding that had previously guided behavior, as with the warning about the bitter bean, or carry forward an incorrect explanation that continued to guide its decisions, as with the suspected hazardous cells.
 Both patterns remained visible in the final handovers, with GPT on seed 43 still treating the bitter color as untested and Qwen on seed 44 attributing the delayed hydration loss to invisible traps\ifincludepilotprompts\ (Appendix~\ref{app:companion-final-handovers})\fi.
 Any handover that replaces earlier messages with a summary leaves room for such omissions or errors, but our schedule often required compaction well before the available context window filled.
-Longer blocks or a policy that retains recent messages in full could change which information survives, so the frequency of these failures and the performance attainable with either model under other handover policies remain open.
-With either change, though, the agent would still need to connect delayed effects to earlier actions and preserve findings whose relevance may become apparent much later.
+Longer blocks could change which information survives, as could retaining recent messages in full or letting the agent decide when and what to summarize \cite{devoto2026}.
+How often the observed failures would recur under these policies and how well either model could perform remain open questions.
+With any of these changes, though, the agent would still need to connect delayed effects to earlier actions and preserve findings whose relevance may become apparent much later.
 
 \section{Conclusion}
 
